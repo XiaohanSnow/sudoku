@@ -9,7 +9,7 @@
 #include <time.h>
 using namespace std;
 
-string Sudoku[9] = {     //³õÊ¼»¯Ò»¸öÊı¶ÀÖÕ¾Ö£¬µÚÒ»¸öÊı×ÖÎª2(1120161721 (2+1)mod9+1 = 4)
+string Sudoku[9] = {     //åˆå§‹åŒ–ä¸€ä¸ªæ•°ç‹¬ç»ˆå±€ï¼Œç¬¬ä¸€ä¸ªæ•°å­—ä¸º2(1120161721 (2+1)mod9+1 = 4)
 	"234567891",       
     "891234567",
     "567891234",
@@ -20,29 +20,31 @@ string Sudoku[9] = {     //³õÊ¼»¯Ò»¸öÊı¶ÀÖÕ¾Ö£¬µÚÒ»¸öÊı×ÖÎª2(1120161721 (2+1)mod
     "678912345",
     "3456789123" };
 
-char Sudoku_out[200000000];       //¼ÇÂ¼Êä³öµÄÊı¶À 
-char Sudoku_in[200000000];        //¼ÇÂ¼ÊäÈëµÄÊı¶À 
-int unsolvedSudoku[10][10];     //¼ÇÂ¼´ı½â¾öµÄÊı¶À 
-int rowMark[10][10];            //¼ÇÂ¼Êı×ÖÔÚĞĞÖĞÊÇ·ñ³öÏÖ 
-int colMark[10][10];            //¼ÇÂ¼Êı×ÖÔÚÁĞÖĞÊÇ·ñ³öÏÖ 
-int blockMark[10][10];          //¼ÇÂ¼Êı×ÖÔÚ¾Å¹¬¸ñÖĞÊÇ·ñ³öÏÖ 
-int row[10], col[10], block[10];//¼ÇÂ¼ĞĞ¡¢ÁĞ¡¢¾Å¹¬¸ñÖĞ³öÏÖµÄÊı×ÖÊıÄ¿ 
-int blank[100][3];              //¼ÇÂ¼¿Õ¸ñËùÔÚµÄĞĞ¡¢ÁĞ¡¢¾Å¹¬¸ñÒÑ¾­ÌîÈëµÄÊı×ÖÊıÄ¿ 
-int blankCounter = 0;           //¼ÇÂ¼¿Õ¸ñµÄÊıÄ¿ 
+char Sudoku_out[200000000];       //è®°å½•è¾“å‡ºçš„æ•°ç‹¬ 
+char Sudoku_in[200000000];        //è®°å½•è¾“å…¥çš„æ•°ç‹¬ 
+char out[17];
+int unsolvedSudoku[10][10];     //è®°å½•å¾…è§£å†³çš„æ•°ç‹¬ 
+int rowMark[10][10];            //è®°å½•æ•°å­—åœ¨è¡Œä¸­æ˜¯å¦å‡ºç° 
+int colMark[10][10];            //è®°å½•æ•°å­—åœ¨åˆ—ä¸­æ˜¯å¦å‡ºç° 
+int blockMark[10][10];          //è®°å½•æ•°å­—åœ¨ä¹å®«æ ¼ä¸­æ˜¯å¦å‡ºç° 
+int row[10], col[10], block[10];//è®°å½•è¡Œã€åˆ—ã€ä¹å®«æ ¼ä¸­å‡ºç°çš„æ•°å­—æ•°ç›® 
+int blank[100][3];              //è®°å½•ç©ºæ ¼æ‰€åœ¨çš„è¡Œã€åˆ—ã€ä¹å®«æ ¼å·²ç»å¡«å…¥çš„æ•°å­—æ•°ç›® 
+int blankCounter = 0;           //è®°å½•ç©ºæ ¼çš„æ•°ç›® 
 
-void Write()                                    //Êä³ö³ÌĞò½á¹û 
+void Write()                                    //è¾“å‡ºç¨‹åºç»“æœ 
 {
     remove("sudoku.txt");
     ofstream WriteFile("sudoku.txt");
     WriteFile << Sudoku_out;
 }
 
-inline int BlockNum(int r,int c)     //¸ù¾İ¿Õ¸ñµÄĞĞ¡¢ÁĞ¼ÆËãËùÔÚ¾Å¹¬¸ñµÄĞòºÅ 
+
+inline int BlockNum(int r,int c)     //æ ¹æ®ç©ºæ ¼çš„è¡Œã€åˆ—è®¡ç®—æ‰€åœ¨ä¹å®«æ ¼çš„åºå· 
 {
     return ((r-1)/3)*3+((c-1)/3);
 }
 
-inline void Swap(int * x, int * y)    //½»»»¿Õ¸ñµÄË³Ğò 
+inline void Swap(int * x, int * y)    //äº¤æ¢ç©ºæ ¼çš„é¡ºåº 
 {
     int arr[3];
     arr[0] = x[0];
@@ -59,14 +61,14 @@ inline void Swap(int * x, int * y)    //½»»»¿Õ¸ñµÄË³Ğò
     return;
 }
 
-inline void SetMark(int r, int c, int n, bool flag)  //¼ÇÂ¼·½¸ñÓĞÊı×Ö 
+inline void SetMark(int r, int c, int n, bool flag)  //è®°å½•æ–¹æ ¼æœ‰æ•°å­— 
 {
     rowMark[r][n] = flag;
     colMark[c][n] = flag;
     blockMark[BlockNum(r, c)][n] = flag;
 }
  
-void Reset()          //Éî¶ÈËÑË÷½áÊøÖ®ºó½«¼ÆÊıµÄÊı×é¹éÁã 
+void Reset()          //æ·±åº¦æœç´¢ç»“æŸä¹‹åå°†è®¡æ•°çš„æ•°ç»„å½’é›¶ 
 {
     for(int i=0;i<10;i++)
     {
@@ -91,9 +93,9 @@ void Reset()          //Éî¶ÈËÑË÷½áÊøÖ®ºó½«¼ÆÊıµÄÊı×é¹éÁã
     return;
 }
 
-bool DFS(int deep)                   //Éî¶ÈÓÅÏÈËÑË÷ 
+bool DFS(int deep)                   //æ·±åº¦ä¼˜å…ˆæœç´¢ 
 {
-    if(deep==blankCounter)            //Çó½âÍê³É             
+    if(deep==blankCounter)            //æ±‚è§£å®Œæˆ             
     {
         return true;
     }
@@ -104,9 +106,9 @@ bool DFS(int deep)                   //Éî¶ÈÓÅÏÈËÑË÷
         if(!rowMark[r][i] && !colMark[c][i] && !blockMark[BlockNum(r, c)][i]) 
         {
             unsolvedSudoku[r][c]=i;
-            SetMark(r, c, unsolvedSudoku[r][c], 1); //¿Õ¸ñÌîÈëÊı×Ö 
+            SetMark(r, c, unsolvedSudoku[r][c], 1); //ç©ºæ ¼å¡«å…¥æ•°å­— 
             if(DFS(deep+1))return true;
-            SetMark(r, c, unsolvedSudoku[r][c], 0); //¿Õ¸ñÎ´ÌîÈëÊı×Ö 
+            SetMark(r, c, unsolvedSudoku[r][c], 0); //ç©ºæ ¼æœªå¡«å…¥æ•°å­— 
             unsolvedSudoku[r][c]=0;
         }
     }
@@ -126,7 +128,7 @@ void SolveSudoku(string  path)
     int count = 0;
     while(!ReadFile.eof())
     {
-        ReadFile >> Sudoku_in[count++];   //¶ÁÈëÊı¶ÀÌâÄ¿ 
+        ReadFile >> Sudoku_in[count++];   //è¯»å…¥æ•°ç‹¬é¢˜ç›® 
     }
     ReadFile.close();
     int count_in = 0;
@@ -140,13 +142,13 @@ void SolveSudoku(string  path)
             {
                 unsolvedSudoku[r][c] = Sudoku_in[count_in++] - 48;
 
-                if(unsolvedSudoku[r][c] == 0)   //ËùÔÚ·½¸ñÎª¿Õ¸ñ 
+                if(unsolvedSudoku[r][c] == 0)   //æ‰€åœ¨æ–¹æ ¼ä¸ºç©ºæ ¼ 
                 {
                     blank[blankCounter][0] = r;
                     blank[blankCounter][1] = c;
                     blankCounter++;
                 }
-                else                            //¼ÇÂ¼·½¸ñÓĞÊı×Ö 
+                else                            //è®°å½•æ–¹æ ¼æœ‰æ•°å­— 
                 {
                     SetMark(r, c, unsolvedSudoku[r][c], 1);
                     row[r]++;
@@ -162,7 +164,7 @@ void SolveSudoku(string  path)
             blank[blankCounter][2] = row[r] + col[c] + block[BlockNum(r, c)];
         }
 
-        for(int i = 0; i < blankCounter; i++)   //¸ù¾İ¼ÇÂ¼¿Õ¸ñËùÔÚµÄĞĞ¡¢ÁĞ¡¢¾Å¹¬¸ñÒÑ¾­ÌîÈëµÄÊı×ÖÊıÄ¿ÓÉ´óµ½Ğ¡ÅÅĞò 
+        for(int i = 0; i < blankCounter; i++)   //æ ¹æ®è®°å½•ç©ºæ ¼æ‰€åœ¨çš„è¡Œã€åˆ—ã€ä¹å®«æ ¼å·²ç»å¡«å…¥çš„æ•°å­—æ•°ç›®ç”±å¤§åˆ°å°æ’åº 
         {
             int min = i;
             for(int j = i+1; j < blankCounter; j++)
@@ -196,17 +198,23 @@ void SolveSudoku(string  path)
 
 void CreateSudoku(int & n)
 {
-    int FirstRow[] = {2,3,4,5,6,7,8,9,1};    //¼ÇÂ¼µÚÒ»ĞĞµÄ9¸öÊı 
-    int RowOrder[] = {0,1,2,3,4,5,6,7,8};    //¼ÇÂ¼½»»»ĞĞÒÔºóĞĞºÅµÄ¶ÔÓ¦¹ØÏµ 
-    int NumberOrder[9];                      //¼ÇÂ¼9¸öÊı×ÖÔÚµÚÒ»ĞĞÈ«ÅÅÁĞ±ä»»ºóµÄ¶ÔÓ¦¹ØÏµ 
-    int NewSudoku[9][9];                     //¼ÇÂ¼µÚÒ»ĞĞÈ«ÅÅÁĞ±ä»»ºó¸ù¾İ¹æÔòÉú³ÉµÄĞÂÊı¶À 
-    int count = 0;                           //¼ÇÂ¼Êä³öµÄ¸öÊı 
+    int FirstRow[] = {2,3,4,5,6,7,8,9,1};    //è®°å½•ç¬¬ä¸€è¡Œçš„9ä¸ªæ•° 
+    int RowOrder[] = {0,1,2,3,4,5,6,7,8};    //è®°å½•äº¤æ¢è¡Œä»¥åè¡Œå·çš„å¯¹åº”å…³ç³» 
+    int NumberOrder[9];                      //è®°å½•9ä¸ªæ•°å­—åœ¨ç¬¬ä¸€è¡Œå…¨æ’åˆ—å˜æ¢åçš„å¯¹åº”å…³ç³» 
+    int NewSudoku[9][9];                     //è®°å½•ç¬¬ä¸€è¡Œå…¨æ’åˆ—å˜æ¢åæ ¹æ®è§„åˆ™ç”Ÿæˆçš„æ–°æ•°ç‹¬ 
+    int count = 0;                           //è®°å½•è¾“å‡ºçš„ä¸ªæ•° 
+
+    
+    ofstream WriteFile;
+	WriteFile.open("sudoku.txt",ios::trunc);
+  
+
     do
     {
-        for (int i = 0; i < 9; i++)        //9¸öÊı×ÖÔÚµÚÒ»ĞĞÈ«ÅÅÁĞ±ä»»ºóÓëÔ­Î»ÖÃÊı×ÖÒ»Ò»¶ÔÓ¦ 
-            NumberOrder[Sudoku[0][i] - 49] = FirstRow[i];//Ô­Î»ÖÃÊı×ÖµÄASCIIÂë-48µÈÓÚÊı×Ö£¬ÔÙ-1µÈÓÚÊı×éĞòºÅ 
+        for (int i = 0; i < 9; i++)        //9ä¸ªæ•°å­—åœ¨ç¬¬ä¸€è¡Œå…¨æ’åˆ—å˜æ¢åä¸åŸä½ç½®æ•°å­—ä¸€ä¸€å¯¹åº” 
+            NumberOrder[Sudoku[0][i] - 49] = FirstRow[i];//åŸä½ç½®æ•°å­—çš„ASCIIç -48ç­‰äºæ•°å­—ï¼Œå†-1ç­‰äºæ•°ç»„åºå· 
         
-        for (int i = 0; i < 9; ++i)        //½«Êı¶ÀÖĞµÄËùÓĞÊı×Ö°´ÕÕ¶ÔÓ¦¹ØÏµÌæ»» 
+        for (int i = 0; i < 9; ++i)        //å°†æ•°ç‹¬ä¸­çš„æ‰€æœ‰æ•°å­—æŒ‰ç…§å¯¹åº”å…³ç³»æ›¿æ¢ 
             for (int j = 0; j < 9; ++j)
                 NewSudoku[i][j] = NumberOrder[Sudoku[i][j] - 49];
 
@@ -217,25 +225,25 @@ void CreateSudoku(int & n)
                 {
                     for (int k = 0; k < 9; k++)
                     {
+                    	count = 0;
                         for (int t = 0; t < 9; t++)
                         {
-                            Sudoku_out[count++] = NewSudoku[RowOrder[k]][t] +'0';
-                            if (t == 8)
-                                Sudoku_out[count++] = '\n';     //Ã¿ĞĞÄ©Î²»»ĞĞ 
-                            else 
-                                Sudoku_out[count++] = ' ';		//·½¸ñÖ®¼ä¿Õ¸ñ 
+                            out[count++] = NewSudoku[RowOrder[k]][t] +'0';
+                            if (t != 8)
+                            out[count++] = ' ';		//æ–¹æ ¼ä¹‹é—´ç©ºæ ¼ 
                         }
+                        WriteFile<<out<<"\n";
                     }
                     if (--n)
-                        Sudoku_out[count++] = '\n';              //Êı¶ÀÖ®¼ä¿ÕĞĞ 
+                        WriteFile<<"\n";              //æ•°ç‹¬ä¹‹é—´ç©ºè¡Œ 
                     else
                         return;
-                    next_permutation(RowOrder+6,RowOrder+9); //¶Ô7 8 9ĞĞÈ«ÅÅÁĞ±ä»» 
+                    next_permutation(RowOrder+6,RowOrder+9); //å¯¹7 8 9è¡Œå…¨æ’åˆ—å˜æ¢ 
                 }
-                next_permutation(RowOrder+3,RowOrder+6);     //¶Ô4 5 6ĞĞÈ«ÅÅÁĞ±ä»» 
+                next_permutation(RowOrder+3,RowOrder+6);     //å¯¹4 5 6è¡Œå…¨æ’åˆ—å˜æ¢ 
             }
     }
-    while(next_permutation(FirstRow+1,FirstRow+9));    //¶ÔµÚÒ»ĞĞµÄºó8¸öÊıÈ«ÅÅÁĞ 
+    while(next_permutation(FirstRow+1,FirstRow+9));    //å¯¹ç¬¬ä¸€è¡Œçš„å8ä¸ªæ•°å…¨æ’åˆ— 
     return;
 }
 
@@ -244,7 +252,7 @@ int main(int argc, char *argv[])
     clock_t start,finish;
     start = clock();
     
-    if (argc != 3)                  //¼ì²éÊäÈëµÄÖ¸Áî¸öÊı 
+    if (argc != 3)                  //æ£€æŸ¥è¾“å…¥çš„æŒ‡ä»¤ä¸ªæ•° 
     {
         cout << "== Invalid Arguments ==" << endl;
         cout << "If the file path contains spaces:"<< endl;
@@ -253,7 +261,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (strcmp(argv[1],"-c") && strcmp(argv[1],"-s")) //¼ì²éÊäÈëµÄÀàĞÍ 
+    if (strcmp(argv[1],"-c") && strcmp(argv[1],"-s")) //æ£€æŸ¥è¾“å…¥çš„ç±»å‹ 
     {
         cout << "== Invalid Command ==" << endl;
         cout << "This applicaiton only supports create(-c) and solve(-s) functions!" << endl;
@@ -265,7 +273,7 @@ int main(int argc, char *argv[])
         case 'c':                
         {
             int num = atoi(argv[2]);                
-            if (num <= 0 || strlen(argv[2]) != int(log10(num))+1 || num >1000000)//¼ì²éÊäÈëµÄÊı×ÖÊÇ·ñ·ûºÏÌâÄ¿ÒªÇó 
+            if (num <= 0 || strlen(argv[2]) != int(log10(num))+1 || num >1000000)//æ£€æŸ¥è¾“å…¥çš„æ•°å­—æ˜¯å¦ç¬¦åˆé¢˜ç›®è¦æ±‚ 
             {
                 cout << "== Invalid Input ==" << endl;
                 cout << "Make sure the number is in the range of 1-1,000,000!" << endl;
@@ -291,7 +299,6 @@ int main(int argc, char *argv[])
     
     return 0;
 }
-
 
 
 
