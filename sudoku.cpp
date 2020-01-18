@@ -22,7 +22,6 @@ string Sudoku[9] = {     //初始化一个数独终局，第一个数字为2(112
 
 char Sudoku_out[200000000];       //记录输出的数独 
 char Sudoku_in[200000000];        //记录输入的数独 
-char out[17];
 int unsolvedSudoku[10][10];     //记录待解决的数独 
 int rowMark[10][10];            //记录数字在行中是否出现 
 int colMark[10][10];            //记录数字在列中是否出现 
@@ -37,7 +36,6 @@ void Write()                                    //输出程序结果
     ofstream WriteFile("sudoku.txt");
     WriteFile << Sudoku_out;
 }
-
 
 inline int BlockNum(int r,int c)     //根据空格的行、列计算所在九宫格的序号 
 {
@@ -203,12 +201,6 @@ void CreateSudoku(int & n)
     int NumberOrder[9];                      //记录9个数字在第一行全排列变换后的对应关系 
     int NewSudoku[9][9];                     //记录第一行全排列变换后根据规则生成的新数独 
     int count = 0;                           //记录输出的个数 
-
-    
-    ofstream WriteFile;
-	WriteFile.open("sudoku.txt",ios::trunc);
-  
-
     do
     {
         for (int i = 0; i < 9; i++)        //9个数字在第一行全排列变换后与原位置数字一一对应 
@@ -225,17 +217,17 @@ void CreateSudoku(int & n)
                 {
                     for (int k = 0; k < 9; k++)
                     {
-                    	count = 0;
                         for (int t = 0; t < 9; t++)
                         {
-                            out[count++] = NewSudoku[RowOrder[k]][t] +'0';
-                            if (t != 8)
-                            out[count++] = ' ';		//方格之间空格 
+                            Sudoku_out[count++] = NewSudoku[RowOrder[k]][t] +'0';
+                            if (t == 8)
+                                Sudoku_out[count++] = '\n';     //每行末尾换行 
+                            else 
+                                Sudoku_out[count++] = ' ';		//方格之间空格 
                         }
-                        WriteFile<<out<<"\n";
                     }
                     if (--n)
-                        WriteFile<<"\n";              //数独之间空行 
+                        Sudoku_out[count++] = '\n';              //数独之间空行 
                     else
                         return;
                     next_permutation(RowOrder+6,RowOrder+9); //对7 8 9行全排列变换 
