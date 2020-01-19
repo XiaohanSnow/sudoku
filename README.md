@@ -1,10 +1,16 @@
 # Sudoku
 - Programme / Submit : Dev-C++, Windows 10 Professional
 - Debug / Analysis / Complie : Visual Studio 2017, Windows 10 Professional
+# GUI
+- Programme / Language : Visual Studio 2017, C#
 # Directory
 ```
 / BIN
     / Sudoku.exe                          Executable program for Windows x64
+/ GUIBIN
+    / Form1.Designer.cs
+    / Form1.cs
+    / Program1.cs
 / sudoku.cpp                              Source code
 ```
 # Tutorial
